@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String
 
 # rclpy is ros2 python client library. It acts as a bridge between actual python code logic and ros2 framework. 
 # other smart devs has already created some code logic for us on almost every important aspect of ros2. we can use those code logic by importing them and build our application on top of it. 
@@ -12,13 +13,32 @@ class PublisherNode(Node):
     def __init__(self):
         super().__init__("publisher")
 
-        self.timer = self.create_timer(
-            1.0,
-            self.timer_callback
+
+        self.publisher = self.create_publisher(
+            String,
+            "/chat",
+            10
         )
 
-    def timer_callback(self):
-        self.get_logger().info("Hello from my first ROS node!")
+        self.count = 0
+
+        self.timer = self.create_timer(
+            1.0,
+            self.publish_message
+        )
+
+    def publish_message(self) :
+
+        msg = String()
+
+        msg.data = f"Message {self.count}"
+        
+        self.publisher.publish(msg)
+
+        self.get_logger().info(
+            f"Published: \"{msg.data}\""
+        )
+        self.count+=1
 
 
 def main(args=None):

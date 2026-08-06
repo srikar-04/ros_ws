@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             "publisher = my_first_pkg.publisher:main",
+            "subscriber = my_first_pkg.subscriber:main"
         ],
     },
 )
