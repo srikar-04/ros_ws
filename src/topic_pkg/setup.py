@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'my_first_pkg'
+package_name = 'topic_pkg'
 
 setup(
     name=package_name,
@@ -24,8 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            "publisher = my_first_pkg.publisher:main",
-            "subscriber = my_first_pkg.subscriber:main"
+            "publisher = topic_pkg.publisher:main",
+            "subscriber = topic_pkg.subscriber:main"
         ],
     },
 )
