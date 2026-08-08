@@ -13,7 +13,7 @@ class SubscriberNode(Node) :
 
     # create subscription takes a msg type, topic name, callback function and queue size as input and returns a subscription object
     
-        self.subscription = self.create_subscription(
+        self.chat_subscription = self.create_subscription(
             String,
             "/chat",
             self.message_callback,
@@ -21,7 +21,7 @@ class SubscriberNode(Node) :
         )
 
     # creating a new subscriber for custom interface msg publisher
-        self.subscription = self.create_subscription(
+        self.object_subscription = self.create_subscription(
             DetectObject,
             "/detected_object",
             self.custom_interface_callback,
@@ -47,7 +47,7 @@ def main(args=None):
 
     rclpy.spin(node)
 
-    rclpy.destroy_node()
+    node.destroy_node()
 
     rclpy.shutdown()
 
