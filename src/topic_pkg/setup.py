@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             "publisher = topic_pkg.publisher:main",
-            "subscriber = topic_pkg.subscriber:main"
+            "subscriber = topic_pkg.subscriber:main",
+            "gripper_service = topic_pkg.gripper_service:main",
         ],
     },
 )
