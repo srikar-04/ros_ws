@@ -27,6 +27,7 @@ setup(
             "publisher = topic_pkg.publisher:main",
             "subscriber = topic_pkg.subscriber:main",
             "gripper_service = topic_pkg.gripper_service:main",
+            "gripper_client = topic_pkg.gripper_client:main"
         ],
     },
 )
