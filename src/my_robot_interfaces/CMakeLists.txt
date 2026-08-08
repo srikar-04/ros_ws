@@ -17,6 +17,7 @@ find_package(rosidl_default_generators REQUIRED)
 # Declare custom message file 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/DetectObject.msg"
+  "srv/SetGripper.srv"
 )
 
 
