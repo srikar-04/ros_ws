@@ -3,6 +3,8 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
+from my_robot_interfaces.msg import DetectObject
+
 class SubscriberNode(Node) :
 
     def __init__(self):
@@ -18,10 +20,23 @@ class SubscriberNode(Node) :
             10
         )
 
+    # creating a new subscriber for custom interface msg publisher
+        self.subscription = self.create_subscription(
+            DetectObject,
+            "/detected_object",
+            self.custom_interface_callback,
+            10
+        )
+
     def message_callback(self, message):
 
         self.get_logger().info(
             f'Recieved : "{message.data}"'
+        )
+
+    def custom_interface_callback(self, message):
+        self.get_logger().info(
+            f'Recieved Custom Message : "{message}"'
         )
 
 
