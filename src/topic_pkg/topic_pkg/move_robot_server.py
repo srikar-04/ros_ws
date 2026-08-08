@@ -6,7 +6,6 @@ from my_robot_interfaces.action import MoveRobot
 
 import time
 
-from rclpy.executors import MultiThreadedExecutor
 
 class MoveRobotServer(Node):
     def __init__(self):
@@ -23,7 +22,6 @@ class MoveRobotServer(Node):
             MoveRobot,
             "/move_robot",
             self.execute_callback,
-            callback_group=self.callback_group
         )
 
         self.get_logger().info(
@@ -41,28 +39,26 @@ class MoveRobotServer(Node):
 
         feedback = MoveRobot.Feedback()
 
-        rate = self.create_rate(1.0) # 1.0 Hz = 1 second loop
-
         for i in range(1, 11):
-            # time.sleep(1) -> This is blocking the single threaded executor. we are not using this
 
-            feedback.progress = float(i*10)
+            time.sleep(1)
+
+            feedback.progress = float(i * 10)
 
             goal_handle.publish_feedback(feedback)
 
             self.get_logger().info(
-                f"Progress : {feedback.progress}%"
+                f"Progress: {feedback.progress}%"
             )
 
-            rate.sleep()
+            # rate.sleep()
         goal_handle.succeed()
 
         result = MoveRobot.Result()
-
         result.success = True
 
         self.get_logger().info(
-            "Goal Completed"
+            "Goal completed."
         )
 
         return result
@@ -72,21 +68,10 @@ def main(args=None):
 
     node = MoveRobotServer()
 
-    # we are using multi-thread executor here, we may or may not use it in future.
+    rclpy.spin(node)
+    
+    node.destroy_node()
 
-    executor = MultiThreadedExecutor()
-
-    executor.add_node(node)
-
-    try :
-        executor.spin()
-    except KeyboardInterrupt:
-        pass
-    finally :
-
-        node.destroy_node()
-
-        rclpy.shutdown()
-
+    rclpy.shutdown()
 if __name__ == "__main__" :
     main()
