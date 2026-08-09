@@ -28,7 +28,7 @@ class MoveRobotServer(Node):
             "Move Robot Action Server Is Ready"
         )
 
-    # This is not a normal callback like topic or service. It is a goal callback, it recieves goal_handle which respresents the particular goal sent by the client
+    # This is not a normal callback like topic or service. It is a goal callback, it recieves goal_handle which respresents the particular goal/target sent by the client and it is also capable of sending feedback and cancellation response to client. One the goal is completed, it can also send result to client.
 
     def execute_callback(self, goal_handle):
         target = goal_handle.request.target
@@ -42,6 +42,21 @@ class MoveRobotServer(Node):
         for i in range(1, 11):
 
             time.sleep(1)
+
+            if goal_handle.is_cancel_requested:
+
+                self.get_logger().info(
+                    "Cancellation requested."
+                )
+                
+                # This tells ros that i have accepted cancellation request and the gaol is now cancelled
+
+                goal_handle.canceled()
+
+                result = MoveRobot.Result()
+                result.success = False
+
+                return result
 
             feedback.progress = float(i * 10)
 
