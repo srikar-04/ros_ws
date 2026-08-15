@@ -15,6 +15,9 @@ class MoveRobotClient(Node):
             "/move_robot"
         )
 
+        self.goal_handle = None
+        self.cancel_timer = None
+
     def send_goal(self, target) :
         self.get_logger().info(
             f"Waiting for /move_robot action server..."
@@ -34,29 +37,39 @@ class MoveRobotClient(Node):
         goal.target = target
 
         # we are asking ros to send goal to server but we are not waiting for the entire process to finish. we are doing this asynchronously 
-        future = self.action_client.send_goal_async(
+        send_goal_future = self.action_client.send_goal_async(
             goal,
             feedback_callback = self.feedback_callback
         )
 
         # when the future eventually gets completed and we get a result, ros executes the goal_response_callback 
-        future.add_done_callback(
+        send_goal_future.add_done_callback(
             self.goal_response_callback
         )
 
     def goal_response_callback(self, future) :
-        goal_handle = future.result()
+        self.goal_handle = future.result()
 
-        if not goal_handle.accepted:
+        if not self.goal_handle.accepted:
             self.get_logger().info(
                 "Goal was rejected"
             )
             return 
         
         self.get_logger().info(
-            "Goal Completed"
+            "Goal Accepted"
         )
-        result_future = goal_handle.get_result_async()
+
+        self.get_logger().info(
+            f"Goal ID: {self.goal_handle.goal_id.uuid}"
+        )
+
+        self.cancel_timer = self.create_timer(
+            3.0,
+            self.cancel_goal
+        )
+
+        result_future = self.goal_handle.get_result_async()
 
         result_future.add_done_callback(
             self.result_callback
@@ -70,12 +83,45 @@ class MoveRobotClient(Node):
             f"Progress: {feedback.progress}%"
         )
 
+    def cancel_goal(self):
+        if self.cancel_timer is not None:
+            self.cancel_timer.cancel()
+
+        if self.goal_handle is None:
+            return
+        
+        self.get_logger().info(
+            "Sending cancellation request"
+        )
+
+        cancel_future = self.goal_handle.cancel_goal_async()
+
+        cancel_future.add_done_callback(
+            self.cancel_response_callback
+        )
+
+    def cancel_response_callback(self, future):
+        cancel_response = future.result()
+
+        if len(cancel_response.goals_canceling) > 0:
+            self.get_logger().info(
+                "Cancel accepted by server"
+            )
+        else :
+            self.get_logger().info(
+                "Cancellation rejected by server"
+            )
+
     def result_callback(self, future):
 
-        result = future.result().result
+        result = future.result()
 
         self.get_logger().info(
-            f"Result received: success={result.success}"
+            f"Result stauts: {result.status}"
+        )
+
+        self.get_logger().info(
+            f"Result success : {result.result.success}"
         )
 
         rclpy.shutdown()
